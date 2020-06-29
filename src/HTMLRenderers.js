@@ -81,7 +81,7 @@ export function ul (htmlAttribs, children, convertedCSSStyles, passProps = {}) {
         ];
 
         if (rawChild) {
-            if (rawChild.parentTag === 'ul' && rawChild.tagName === 'li') {
+            if (rawChild.parentTag === 'ul' && rawChild.tagName === 'li<') {
                 prefix = listsPrefixesRenderers && listsPrefixesRenderers.ul ? listsPrefixesRenderers.ul(...rendererArgs) : (
                     <View style={{
                         marginRight: 10,
@@ -139,8 +139,34 @@ export function iframe (htmlAttribs, children, convertedCSSStyles, passProps) {
 
     const source = htmlAttribs.srcdoc ? { html: htmlAttribs.srcdoc } : { uri: htmlAttribs.src };
 
+    if (Platform.OS === 'android' && source.uri.indexOf('https://www.youtube.com/') === 0) {
+        const width = Dimensions.get('window').width - 40;
+
+        return (
+          <WebView
+            key={passProps.key}
+            source={{ html: `<html><head><meta name="viewport" content="width=device-width"></head><body><iframe src=${source.uri} frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></body></html>` }}
+            style={{
+                width: width,
+                height: width / 2,
+            }}
+            scalesPageToFit={false}
+            allowsInlineMediaPlayback={true}
+            allowfullscreen={true}
+            allowsFullscreenVideo={true}
+          />
+        )
+    }
+
     return (
-        <WebView key={passProps.key} source={source} style={style} />
+        <WebView
+          key={passProps.key}
+          source={source}
+          style={style}
+          allowsInlineMediaPlayback={true}
+          allowfullscreen={true}
+          allowsFullscreenVideo={true}
+        />
     );
 }
 
